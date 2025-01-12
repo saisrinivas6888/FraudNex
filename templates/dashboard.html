@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AML Transaction Monitoring - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='/dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="nav-brand">AML Monitoring System</div>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}" class="nav-link active">Dashboard</a>
+                <a href="{{ url_for('generate_predictions') }}" class="nav-link">Generate Predictions</a>
+                <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+            </div>
+        </nav>
+
+        <div class="content">
+            <h1>Risk Analysis Dashboard</h1>
+
+            <!-- Summary Cards -->
+            <div class="summary-section">
+                <div class="summary-card">
+                    <h3>Total Alerts</h3>
+                    <div class="summary-value">{{ summary.total_alerts }}</div>
+                    <div class="summary-label">Total Alerts Generated</div>
+                </div>
+                <div class="summary-card high-risk">
+                    <h3>High Risk Cases</h3>
+                    <div class="summary-value">{{ summary.high_risk_count }}</div>
+                    <div class="summary-label">Critical Alerts</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Amount</h3>
+                    <div class="summary-value">${{ "{:,.2f}".format(summary.total_amount) }}</div>
+                    <div class="summary-label">Value at Risk</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Recent Alerts</h3>
+                    <div class="summary-value">{{ summary.recent_alerts }}</div>
+                    <div class="summary-label">Last 24 Hours</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <!-- Model Performance -->
+                <div class="chart-container">
+                    <h2>Model Performance</h2>
+                    <canvas id="modelPerformanceChart"></canvas>
+                </div>
+
+                <!-- Risk Distribution -->
+                <div class="chart-container">
+                    <h2>Risk Distribution</h2>
+                    <canvas id="riskDistributionChart"></canvas>
+                </div>
+
+                <!-- Alert Trend -->
+                <div class="chart-container">
+                    <h2>Alert Trend (7 Days)</h2>
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Alerts Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Alerts</h2>
+                    <div class="alert-filters">
+                        <select id="riskFilter">
+                            <option value="all">All Risks</option>
+                            <option value="high">High Risk</option>
+                            <option value="medium">Medium Risk</option>
+                            <option value="low">Low Risk</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="alertsTable">
+                        <thead>
+                            <tr>
+                                <th>Alert Date</th>
+                                <th>From Bank</th>
+                                <th>To Bank</th>
+                                <th>Amount</th>
+                                <th>Risk Score</th>
+                                <th>Risk Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alert in alerts %}
+                            <tr class="risk-{{ alert.risk_level|lower|replace(' ', '-') if alert.risk_level is defined else 'unknown' }}">
+                                <td>{{ alert.alert_date if alert.alert_date is defined else 'N/A' }}</td>
+                                <td>{{ alert.get('From Bank', 'N/A') }}</td>
+                                <td>{{ alert.get('To Bank', 'N/A') }}</td>
+                                <td>${{ "{:,.2f}".format(alert.Amount) if alert.Amount is defined else "0.00" }}</td>
+                                <td>{{ "{:.2%}".format(alert.risk_score) if alert.risk_score is defined else "N/A" }}</td>
+                                <td>
+                                    <span class="status-badge {{ alert.risk_level|lower|replace(' ', '-') if alert.risk_level is defined else 'unknown' }}">
+                                        {{ alert.get('risk_level', 'Unknown') }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize chart data
+        const chartData = {
+            modelPerformance: {{ model_performance|tojson|safe }},
+            riskDistribution: {{ risk_distribution|tojson|safe }},
+            trendData: {{ trend_data|tojson|safe }}
+        };
+
+        // Initialize dashboard charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Model Performance Chart
+            new Chart(document.getElementById('modelPerformanceChart'), {
+                type: 'bar',
+                data: {
+                    labels: chartData.modelPerformance.labels,
+                    datasets: [{
+                        label: 'Model Score',
+                        data: chartData.modelPerformance.scores,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Model Performance by Type'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+
+            // Risk Distribution Chart
+            new Chart(document.getElementById('riskDistributionChart'), {
+                type: 'pie',
+                data: {
+                    labels: chartData.riskDistribution.labels,
+                    datasets: [{
+                        data: chartData.riskDistribution.values,
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.8)',  // High Risk
+                            'rgba(245, 158, 11, 0.8)', // Medium Risk
+                            'rgba(34, 197, 94, 0.8)'   // Low Risk
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Alert Trend Chart
+            new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: {
+                    labels: chartData.trendData.dates,
+                    datasets: [{
+                        label: 'Daily Alerts',
+                        data: chartData.trendData.counts,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // Initialize table filtering
+        document.getElementById('riskFilter').addEventListener('change', function(e) {
+            const risk = e.target.value;
+            const rows = document.querySelectorAll('#alertsTable tbody tr');
+
+            rows.forEach(row => {
+                if (risk === 'all' || row.classList.contains(`risk-${risk}`)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script src="{{ url_for('static', filename='/dashboard.js') }}"></script>
+</body>
+</html>
