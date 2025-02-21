@@ -32,7 +32,7 @@ Ensure you have the following installed:
 ### Steps to Install
 ```sh
 # Clone the repository
-git clone https://github.com/saisrinivas6888/Transaction-Monitoring-Software.git
+git clone https://github.com/saisrinivas6888/FraudNex
 cd Transaction-Monitoring-Software
 
 # Install dependencies
