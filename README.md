@@ -42,5 +42,35 @@ pip install -r requirements.txt
 export SPARK_HOME=/path/to/spark
 export HADOOP_HOME=/path/to/hadoop
 
+
 # Run the application
-python main.py 
+python main.py
+```
+#Usage
+# Training the Model
+python train_model.py --dataset path/to/dataset.csv
+
+# Monitoring Transactions
+python monitor.py --input live_transactions.csv
+
+# Generating Reports
+python generate_report.py --output report.pdf
+## Next Section
+This is normal text outside the code block. You can now continue writing your README as usual.
+
+## Folder Structure
+```plaintext
+Transaction-Monitoring-Software/
+│── data/               # Sample datasets
+│── models/             # Trained ML models
+│── src/                # Source code
+│   ├── preprocess.py   # Data preprocessing
+│   ├── train_model.py  # Training script
+│   ├── monitor.py      # Monitoring transactions
+│   ├── generate_report.py # Reporting script
+│── tests/              # Unit tests
+│── requirements.txt    # Dependencies
+│── README.md           # Documentation
+```
+
+
