@@ -1,76 +1,124 @@
-# FraudNex
-# Transaction Monitoring Software
+# TransactSafe – Secure and Compliant Transactions
 
-## Overview
-Transaction Monitoring Software is designed to detect and prevent fraudulent financial transactions using machine learning techniques. It provides real-time anomaly detection for insurance fraud and money laundering cases, ensuring financial security and compliance.
+A robust Anti-Money Laundering (AML) transaction monitoring system built with Flask, machine learning, and HBase.
+The system provides real-time analysis of financial transactions to detect suspicious patterns and potential money laundering activities.
 
 ## Features
-- **Fraud Detection:** Identifies suspicious transactions using Spark ML.
-- **Anomaly Detection:** Flags unusual activity based on transaction patterns.
-- **Scalability:** Built on Apache Spark for handling large datasets.
-- **Real-time Processing:** Supports streaming data for continuous monitoring.
-- **User-Friendly Interface:** Provides clear visual insights and reports.
-- **Data Storage:** Integrates with HDFS, Hive, and Spark SQL for efficient data management.
+- Real-time transaction monitoring and risk scoring
+- Unsupervised machine learning for anomaly detection
+- Interactive dashboard for monitoring alerts and trends
+- Batch processing capability for large transaction files
+- Secure user authentication and role-based access
+- HBase integration for scalable data storage
+- Comprehensive feature engineering and preprocessing
+- Multi-model ensemble approach for improved accuracy
 
 ## Tech Stack
-- **Programming Language:** Python
-- **Big Data Technologies:** Apache Spark, Spark ML, HDFS, Hive
-- **Database:** Cassandra, HBase
+- **Backend:** Python, Flask
+- **Database:** HBase
+- **Machine Learning:** scikit-learn, NumPy, Pandas
+- **Frontend:** HTML, CSS, JavaScript
+- **Message Queue:** Apache Kafka
 - **Containerization:** Docker
-- **Orchestration:** Kubernetes (Optional)
-- **Cloud Services:** AWS (Optional)
 
-## Installation & Setup
-### Prerequisites
-Ensure you have the following installed:
-- Python 3.x
-- Apache Spark
-- HDFS & Hive (if using big data storage)
-- Docker (if using containerization)
-- AWS CLI (if deploying to the cloud)
+## Requirements
+- Python 3.8+
+- HBase 2.x
+- Apache Kafka
+- Docker and Docker Compose
+- Required Python packages listed in `requirements.txt`
 
-### Steps to Install
+## Project Structure
+```
+aml-transaction-monitoring/
+├── app/
+│   ├── core/              # Core functionality and models
+│   ├── database/          # Database operations
+│   ├── ml/               # Machine learning components
+│   ├── api/              # API endpoints
+│   └── utils/            # Utility functions
+├── docker/               # Docker configuration
+├── tests/               # Test suite
+├── static/              # Static assets
+├── templates/           # HTML templates
+└── scripts/             # Utility scripts
+```
+
+## Installation
+Clone the repository:
 ```sh
-# Clone the repository
-git clone https://github.com/saisrinivas6888/FraudNex
-cd Transaction-Monitoring-Software
+git clone https://github.com/yourusername/aml-transaction-monitoring.git
+cd aml-transaction-monitoring
+```
 
-# Install dependencies
+Create and activate a virtual environment:
+```sh
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+Install dependencies:
+```sh
 pip install -r requirements.txt
-
-# Set up the environment variables (if required)
-export SPARK_HOME=/path/to/spark
-export HADOOP_HOME=/path/to/hadoop
-
-
-# Run the application
-python main.py
-```
-#Usage
-# Training the Model
-python train_model.py --dataset path/to/dataset.csv
-
-# Monitoring Transactions
-python monitor.py --input live_transactions.csv
-
-# Generating Reports
-python generate_report.py --output report.pdf
-## Next Section
-This is normal text outside the code block. You can now continue writing your README as usual.
-
-## Folder Structure
-```plaintext
-Transaction-Monitoring-Software/
-│── data/               # Sample datasets
-│── models/             # Trained ML models
-│── src/                # Source code
-│   ├── preprocess.py   # Data preprocessing
-│   ├── train_model.py  # Training script
-│   ├── monitor.py      # Monitoring transactions
-│   ├── generate_report.py # Reporting script
-│── tests/              # Unit tests
-│── requirements.txt    # Dependencies
-│── README.md           # Documentation
 ```
 
+Set up HBase:
+```sh
+docker-compose up -d hbase
+python scripts/init_hbase.py
+```
 
+Initialize the application:
+```sh
+python app/main.py
+```
+
+## Configuration
+Copy the example environment file:
+```sh
+cp .env.example .env
+```
+Update the following configurations in `.env`:
+```ini
+SECRET_KEY=your-secret-key
+HBASE_HOST=localhost
+HBASE_PORT=9090
+MODEL_PATH=models/aml_detector.joblib
+```
+
+## Usage
+### Starting the Application
+Start the services:
+```sh
+docker-compose up -d
+```
+Run the Flask application:
+```sh
+python app/main.py
+```
+Access the application at [http://localhost:5000](http://localhost:5000)
+
+### Processing Transactions
+1. Log in to the application
+2. Navigate to "Generate Predictions"
+3. Upload a CSV file containing transactions
+4. View results in the dashboard
+
+### Monitoring
+- View real-time alerts in the dashboard
+- Monitor processing status for batch uploads
+- Export reports and analytics
+
+## Machine Learning Components
+### Feature Engineering
+- Temporal patterns analysis
+- Amount-based features
+- Bank relationship features
+- Categorical encoding
+- Interaction features
+
+### Model Ensemble
+- Isolation Forest
+- Local Outlier Factor (LOF)
+- DBSCAN
+- Weighted voting system
